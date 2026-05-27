@@ -1,0 +1,10 @@
+local.properties
+build/
+.gradle/
+*.apk
+release.keystore
+spotify-lyrics-mobile-app/build/
+spotify-lyrics-mobile-app/app/build/
+spotify-lyrics-mobile-app/.gradle/
+spotify-lyrics-mobile-app/local.properties
+spotify-lyrics-mobile-app/app/release.keystore

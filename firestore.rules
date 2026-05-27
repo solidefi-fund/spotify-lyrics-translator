@@ -1,0 +1,20 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /songs/{trackId} {
+      // Anyone can read translations
+      allow read: if true;
+      
+      // Anyone can create a new translation, but they can't overwrite an existing one
+      // unless they are updating the "lyrics" field. They cannot delete.
+      allow create: if request.resource.data.keys().hasAll(['title', 'artist', 'lyrics']) 
+                    && request.resource.data.lyrics is list;
+                    
+      allow update: if request.resource.data.keys().hasAll(['title', 'artist', 'lyrics'])
+                    && request.resource.data.lyrics is list;
+                    
+      allow delete: if false;
+    }
+  }
+}

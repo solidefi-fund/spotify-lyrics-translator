@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "45147592856",
+    "project_id": "gen-lang-client-0538036842",
+    "storage_bucket": "gen-lang-client-0538036842.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:45147592856:android:8ba172c1f1768f36f998ed",
+        "android_client_info": {
+          "package_name": "com.lyrics.translator"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "45147592856-fgh864pevp854k7et19atg2fpr3fcq4i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDYif9vrj2a_Tm0v_6rFRDBRQWrKm6ZhsA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "45147592856-fgh864pevp854k7et19atg2fpr3fcq4i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

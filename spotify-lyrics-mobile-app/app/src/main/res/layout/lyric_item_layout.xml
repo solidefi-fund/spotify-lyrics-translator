@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp"
+    android:gravity="start"
+    android:background="@android:color/transparent">
+
+    <TextView
+        android:id="@+id/tvOriginal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Original Lyric Line"
+        android:textColor="#80FFFFFF"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:gravity="start"
+        android:lineSpacingExtra="4dp" />
+
+    <TextView
+        android:id="@+id/tvTranslation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Translated Lyric Line"
+        android:textColor="#60C8A84B"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:gravity="start"
+        android:layout_marginTop="6dp"
+        android:lineSpacingExtra="2dp"
+        android:visibility="gone" />
+
+</LinearLayout>
