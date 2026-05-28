@@ -118,6 +118,29 @@
             border-top: 1px solid #282828;
         }
 
+        .screenshots {
+            padding: 40px 0;
+        }
+
+        .screenshot-container {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .screenshot-img {
+            max-width: 250px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 4px solid #282828;
+            transition: transform 0.3s ease;
+        }
+
+        .screenshot-img:hover {
+            transform: translateY(-10px);
+        }
+
         /* Ensure the layout has breathing room on mobile screens */
         @media (max-width: 768px) {
             .hero {
@@ -147,6 +170,14 @@
             <p>A floating AI-powered overlay that automatically detects what you're playing on Spotify and provides real-time, context-aware translations.</p>
             <!-- Link will be updated to point to the actual GitHub release once published -->
             <a href="https://github.com/solidefi-fund/spotify-lyrics-translator/releases/latest" class="btn">Download APK for Android</a>
+        </section>
+
+        <section class="screenshots">
+            <div class="screenshot-container">
+                <img src="screenshot1.jpg" alt="Lyrics Translator Screenshot 1" class="screenshot-img">
+                <img src="screenshot2.jpg" alt="Lyrics Translator Screenshot 2" class="screenshot-img">
+                <img src="screenshot3.jpg" alt="Lyrics Translator Screenshot 3" class="screenshot-img">
+            </div>
         </section>
 
         <section class="features">
