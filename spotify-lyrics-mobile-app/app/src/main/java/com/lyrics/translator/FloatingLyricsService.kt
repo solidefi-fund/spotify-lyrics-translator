@@ -25,6 +25,9 @@ import java.net.URLEncoder
 import java.security.MessageDigest
 import kotlinx.coroutines.tasks.await
 
+import androidx.annotation.Keep
+
+@Keep
 data class LyricLine(
     val startTimeMs: Long,
     val words: String,
@@ -56,6 +59,7 @@ class FloatingLyricsService : Service(), SpotifyPlaybackManager.PlaybackListener
     private lateinit var tvBubbleLyric: TextView
     private lateinit var tvBubbleTranslation: TextView
     private lateinit var btnShare: ImageButton
+    private lateinit var btnEdit: ImageButton
     private lateinit var btnMinimize: ImageButton
     private lateinit var btnExpand: ImageButton
     private lateinit var btnClose: ImageButton
@@ -74,6 +78,17 @@ class FloatingLyricsService : Service(), SpotifyPlaybackManager.PlaybackListener
     private var syncJob: Job? = null
     private var lyricsFetchJob: Job? = null
     private lateinit var adapter: LyricsAdapter
+    
+    private val lyricsUpdateReceiver = object : android.content.BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == "com.lyrics.translator.LYRICS_UPDATED") {
+                Log.d(TAG, "Received LYRICS_UPDATED broadcast. Reloading lyrics...")
+                if (currentTrackName.isNotEmpty() && currentArtistName.isNotEmpty()) {
+                    onTrackChanged(currentTrackName, currentArtistName)
+                }
+            }
+        }
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -96,6 +111,14 @@ class FloatingLyricsService : Service(), SpotifyPlaybackManager.PlaybackListener
         } catch (e: Exception) {
             Log.e(TAG, "Failed to send refresh intent to MediaSessionListenerService", e)
         }
+        
+        val filter = android.content.IntentFilter("com.lyrics.translator.LYRICS_UPDATED")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(lyricsUpdateReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            @Suppress("UnspecifiedRegisterReceiverFlag")
+            registerReceiver(lyricsUpdateReceiver, filter)
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -114,6 +137,7 @@ class FloatingLyricsService : Service(), SpotifyPlaybackManager.PlaybackListener
         tvBubbleLyric = floatingView.findViewById(R.id.tvBubbleLyric)
         tvBubbleTranslation = floatingView.findViewById(R.id.tvBubbleTranslation)
         btnShare = floatingView.findViewById(R.id.btnShare)
+        btnEdit = floatingView.findViewById(R.id.btnEdit)
         btnMinimize = floatingView.findViewById(R.id.btnMinimize)
         btnExpand = floatingView.findViewById(R.id.btnExpand)
         btnClose = floatingView.findViewById(R.id.btnClose)
@@ -192,7 +216,7 @@ class FloatingLyricsService : Service(), SpotifyPlaybackManager.PlaybackListener
                     
                     if (bubbleIsDragging) {
                         params.x = bubbleInitialX + dx
-                        params.y = bubbleInitialY + dy
+                        params.y = bubbleInitialY - dy
                         windowManager.updateViewLayout(floatingView, params)
                     }
                     true
@@ -215,6 +239,18 @@ class FloatingLyricsService : Service(), SpotifyPlaybackManager.PlaybackListener
         layoutBubble.setOnClickListener { restore() }
         btnExpand.setOnClickListener { restore() }
         btnShare.setOnClickListener { /* Share intent placeholder */ }
+        
+        btnEdit.setOnClickListener {
+            if (currentLyrics.isEmpty()) return@setOnClickListener
+            val intent = Intent(this, EditLyricsActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                putExtra("trackName", currentTrackName)
+                putExtra("artistName", currentArtistName)
+                val jsonList = Gson().toJson(currentLyrics)
+                putExtra("lyricsJson", jsonList)
+            }
+            startActivity(intent)
+        }
 
         btnClose.setOnClickListener {
             stopSelf()
@@ -225,12 +261,12 @@ class FloatingLyricsService : Service(), SpotifyPlaybackManager.PlaybackListener
         isMinimized = true
         layoutMain.visibility = View.GONE
         layoutBubble.visibility = View.VISIBLE
-        // Set to WRAP_CONTENT so the pill sizes to the lyric text
-        params.width = WindowManager.LayoutParams.WRAP_CONTENT
+        
+        params.width = WindowManager.LayoutParams.MATCH_PARENT
         params.height = WindowManager.LayoutParams.WRAP_CONTENT
-        params.gravity = Gravity.TOP or Gravity.START
-        params.x = (getScreenWidth() / 2) - dpToPx(130)
-        params.y = getScreenHeight() - dpToPx(160)
+        params.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+        params.x = 0
+        params.y = getScreenHeight() / 6
         windowManager.updateViewLayout(floatingView, params)
     }
 
@@ -1060,6 +1096,12 @@ class FloatingLyricsService : Service(), SpotifyPlaybackManager.PlaybackListener
         serviceScope.cancel()
         SpotifyPlaybackManager.unregisterListener(this)
         
+        try {
+            unregisterReceiver(lyricsUpdateReceiver)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error unregistering receiver", e)
+        }
+
         if (::floatingView.isInitialized) {
             windowManager.removeView(floatingView)
         }
